@@ -9,25 +9,34 @@
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
     <style>
       :root {
+          /* Light Theme Variables */
           --bg-color: snow;
           --line-color: lightblue;
           --margin-color: salmon;
           --text-color: #333;
+          --button-bg: #eee;
           --line-height: 4rem;
+      }
+
+      /* Dark Theme Variables */
+      body.dark-mode {
+          --bg-color: #1e1e1e;
+          --line-color: #333;
+          --margin-color: #444;
+          --text-color: #d4d4d4;
+          --button-bg: #333;
       }
 
       * { box-sizing: border-box; }
 
-      html {
-          /* Smooth scaling from 15px to 25px based on screen width */
-          font-size: clamp(15px, 2vw, 25px);
-      }
+      html { font-size: clamp(15px, 2vw, 25px); }
 
       body, html {
           height: 100%;
           margin: 0;
           background-color: var(--bg-color);
           font-family: Verdana, sans-serif;
+          transition: background-color 0.3s ease; /* Smooth transition */
       }
 
       textarea {
@@ -42,9 +51,9 @@
           font-size: 2rem;
           line-height: var(--line-height);
           color: var(--text-color);
+          background-color: transparent;
           overflow-wrap: break-word;
 
-          /* Notebook Paper Effect */
           background-image:
               linear-gradient(90deg, transparent calc(4rem - 1px), var(--margin-color) 4rem, transparent 4rem),
               linear-gradient(var(--line-color) 1px, transparent 1px);
@@ -52,23 +61,55 @@
           background-attachment: local;
       }
 
+      /* Toggle Button Styling */
+      .theme-toggle {
+          position: fixed;
+          top: 1rem;
+          right: 1rem;
+          z-index: 10;
+          padding: 0.5rem 1rem;
+          border-radius: 5px;
+          border: 1px solid var(--text-color);
+          background: var(--button-bg);
+          color: var(--text-color);
+          cursor: pointer;
+          font-size: 0.8rem;
+      }
+
       textarea::first-line { font-weight: 600; }
     </style>
   </head>
   <body>
-    <label for="note-area" style="display:none;">Type your notes here</label>
+    <button class="theme-toggle" id="theme-btn">Toggle Dark Mode</button>
     <textarea id="note-area" placeholder="Type here. Save nowhere."></textarea>
 
     <script>
       const textarea = document.getElementById('note-area');
+      const themeBtn = document.getElementById('theme-btn');
+      const body = document.body;
 
-      // Load saved content
+      // 1. Persistence Logic (Content)
       textarea.value = localStorage.getItem('tinynotes_content') || '';
       textarea.focus();
-
-      // Save on every keystroke
       textarea.addEventListener('input', () => {
           localStorage.setItem('tinynotes_content', textarea.value);
+      });
+
+      // 2. Theme Logic
+      const currentTheme = localStorage.getItem('theme');
+      if (currentTheme === 'dark') {
+          body.classList.add('dark-mode');
+      }
+
+      themeBtn.addEventListener('click', () => {
+          body.classList.toggle('dark-mode');
+
+          // Save preference
+          let theme = 'light';
+          if (body.classList.contains('dark-mode')) {
+              theme = 'dark';
+          }
+          localStorage.setItem('theme', theme);
       });
     </script>
   </body>
