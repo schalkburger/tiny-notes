@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tiny Notes</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
+    <style>
+      :root {
+          --bg-color: snow;
+          --line-color: lightblue;
+          --margin-color: salmon;
+          --text-color: #333;
+          --line-height: 4rem;
+      }
+
+      * { box-sizing: border-box; }
+
+      html {
+          /* Smooth scaling from 15px to 25px based on screen width */
+          font-size: clamp(15px, 2vw, 25px);
+      }
+
+      body, html {
+          height: 100%;
+          margin: 0;
+          background-color: var(--bg-color);
+          font-family: Verdana, sans-serif;
+      }
+
+      textarea {
+          display: block;
+          width: 100%;
+          height: 100%;
+          border: none;
+          outline: none;
+          padding: 0 0 0 5rem;
+          resize: none;
+
+          font-size: 2rem;
+          line-height: var(--line-height);
+          color: var(--text-color);
+          overflow-wrap: break-word;
+
+          /* Notebook Paper Effect */
+          background-image:
+              linear-gradient(90deg, transparent calc(4rem - 1px), var(--margin-color) 4rem, transparent 4rem),
+              linear-gradient(var(--line-color) 1px, transparent 1px);
+          background-size: 100% var(--line-height);
+          background-attachment: local;
+      }
+
+      textarea::first-line { font-weight: 600; }
+    </style>
+  </head>
+  <body>
+    <label for="note-area" style="display:none;">Type your notes here</label>
+    <textarea id="note-area" placeholder="Type here. Save nowhere."></textarea>
+
+    <script>
+      const textarea = document.getElementById('note-area');
+
+      // Load saved content
+      textarea.value = localStorage.getItem('tinynotes_content') || '';
+      textarea.focus();
+
+      // Save on every keystroke
+      textarea.addEventListener('input', () => {
+          localStorage.setItem('tinynotes_content', textarea.value);
+      });
+    </script>
+  </body>
+</html>
