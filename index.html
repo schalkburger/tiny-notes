@@ -7,36 +7,33 @@
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
+
     <style>
       :root {
-          /* Light Theme Variables */
           --bg-color: snow;
           --line-color: lightblue;
           --margin-color: salmon;
           --text-color: #333;
-          --button-bg: #eee;
           --line-height: 4rem;
       }
 
-      /* Dark Theme Variables */
       body.dark-mode {
           --bg-color: #1e1e1e;
           --line-color: #333;
           --margin-color: #444;
           --text-color: #d4d4d4;
-          --button-bg: #333;
       }
 
       * { box-sizing: border-box; }
+      html { font-size: clamp(15px, 2vw, 25px); height: 100%; }
 
-      html { font-size: clamp(15px, 2vw, 25px); }
-
-      body, html {
+      body {
           height: 100%;
           margin: 0;
           background-color: var(--bg-color);
-          font-family: Verdana, sans-serif;
-          transition: background-color 0.3s ease; /* Smooth transition */
+          font-family: Verdana, Geneva, Tahoma, sans-serif;
+          transition: background-color 0.3s ease;
+          overflow: hidden; /* Prevents double scrollbars */
       }
 
       textarea {
@@ -47,12 +44,12 @@
           outline: none;
           padding: 0 0 0 5rem;
           resize: none;
-
           font-size: 2rem;
           line-height: var(--line-height);
           color: var(--text-color);
           background-color: transparent;
           overflow-wrap: break-word;
+          white-space: pre-wrap;
 
           background-image:
               linear-gradient(90deg, transparent calc(4rem - 1px), var(--margin-color) 4rem, transparent 4rem),
@@ -61,26 +58,36 @@
           background-attachment: local;
       }
 
-      /* Toggle Button Styling */
+      textarea::first-line { font-weight: 600; }
+
       .theme-toggle {
           position: fixed;
           top: 1rem;
           right: 1rem;
           z-index: 10;
-          padding: 0.5rem 1rem;
-          border-radius: 5px;
-          border: 1px solid var(--text-color);
-          background: var(--button-bg);
-          color: var(--text-color);
+          width: 45px;
+          height: 45px;
+          border-radius: 50%;
+          border: 1px solid var(--line-color);
+          background: var(--bg-color);
           cursor: pointer;
-          font-size: 0.8rem;
+          font-size: 1rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+          transition: all 0.2s ease;
+          line-height: 1;
       }
 
-      textarea::first-line { font-weight: 600; }
+      .theme-toggle:hover { transform: scale(1.05); }
+      .theme-toggle:active { transform: scale(0.95); }
     </style>
   </head>
   <body>
-    <button class="theme-toggle" id="theme-btn">Toggle Dark Mode</button>
+    <button class="theme-toggle" id="theme-btn" aria-label="Toggle Dark Mode">☀️</button>
+
+    <label for="note-area" style="display:none;">Note Content</label>
     <textarea id="note-area" placeholder="Type here. Save nowhere."></textarea>
 
     <script>
@@ -88,28 +95,34 @@
       const themeBtn = document.getElementById('theme-btn');
       const body = document.body;
 
-      // 1. Persistence Logic (Content)
-      textarea.value = localStorage.getItem('tinynotes_content') || '';
+      // Load Content
+      textarea.value = localStorage.getItem('tiny_notes_content') || '';
       textarea.focus();
+
       textarea.addEventListener('input', () => {
-          localStorage.setItem('tinynotes_content', textarea.value);
+          localStorage.setItem('tiny_notes_content', textarea.value);
       });
 
-      // 2. Theme Logic
-      const currentTheme = localStorage.getItem('theme');
-      if (currentTheme === 'dark') {
-          body.classList.add('dark-mode');
-      }
+      // Theme Handling
+      const updateUI = (isDark) => {
+          if (isDark) {
+              body.classList.add('dark-mode');
+              themeBtn.textContent = '🌙';
+              themeBtn.setAttribute('aria-label', 'Switch to light mode');
+          } else {
+              body.classList.remove('dark-mode');
+              themeBtn.textContent = '☀️';
+              themeBtn.setAttribute('aria-label', 'Switch to dark mode');
+          }
+      };
+
+      const savedTheme = localStorage.getItem('tiny_theme');
+      updateUI(savedTheme === 'dark');
 
       themeBtn.addEventListener('click', () => {
-          body.classList.toggle('dark-mode');
-
-          // Save preference
-          let theme = 'light';
-          if (body.classList.contains('dark-mode')) {
-              theme = 'dark';
-          }
-          localStorage.setItem('theme', theme);
+          const isNowDark = !body.classList.contains('dark-mode');
+          localStorage.setItem('tiny_theme', isNowDark ? 'dark' : 'light');
+          updateUI(isNowDark);
       });
     </script>
   </body>
